@@ -58,6 +58,8 @@ instance FromText ContentKey where
 
 type AppM = ReaderT Config (EitherT ServantErr IO)
 
+errNoSenderId = err409 { errReasonPhrase = "No sender id", errBody = "No sender id" }
+
 server :: ServerT RatingAPI AppM
 server = ratingServer
     where ratingServer (Just senderId) = 
@@ -66,7 +68,7 @@ server = ratingServer
            :<|> unrate senderId
            :<|> getRatings senderId
            :<|> bulkRatings senderId
-          ratingServer Nothing = undefined -- 409 missing header
+          ratingServer Nothing = undefined --FIXME return errNoSenderId
 
 ratingFilters cid ct = 
     [RatingContentId   ==. cid
@@ -75,6 +77,7 @@ ratingFilters cid ct =
 getRating uid cid ct = selectFirst ((RatingUserId ==. uid) : ratingFilters cid ct)  []
 
 rate :: (MonadIO m, MonadReader Config m) => RatingValue -> UserId -> ContentType -> ContentId -> m ()
+--rate v Nothing _ _ = errNoSenderId
 rate v uid ct cid = runDb $ do
     rating <- getRating uid cid ct
     case rating of
@@ -84,6 +87,7 @@ rate v uid ct cid = runDb $ do
         (Just e@(Entity k r)) -> update k [RatingValue =. v]
 
 unrate :: (MonadIO m, MonadReader Config m) => UserId -> ContentType -> ContentId -> m ()
+--unrate Nothing _ _ = errNoSenderId
 unrate uid ct cid = runDb $ do
     rating <- getRating uid cid ct
     case rating of
@@ -91,6 +95,7 @@ unrate uid ct cid = runDb $ do
         (Just e@(Entity k _)) -> delete k
 
 getRatings :: (MonadIO m, MonadReader Config m) => UserId -> ContentType -> ContentId -> m Ratings
+--getRatings Nothing _ _ = errNoSenderId
 getRatings uid ct cid = runDb $ do
     let filters = ratingFilters cid ct
     likes       <- count        ((RatingValue ==. Like)    : filters) 
