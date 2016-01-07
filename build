@@ -1,0 +1,5 @@
+cabal update
+cabal install --only-dependencies
+cabal configure
+cabal build
+cp -f dist/build/wakunet-rating-service/wakunet-rating-service bin/wakunet-rating-service_x86_64
