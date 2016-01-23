@@ -47,8 +47,8 @@ errNoSenderId = err409 { errReasonPhrase = "No sender id", errBody = "No sender 
 server :: ServerT RatingAPI AppM
 server = ratingServer 
     where ratingServer (Just senderId) =
-                rate (Just Like) senderId
-           :<|> rate (Just Dislike) senderId
+                rate Like senderId
+           :<|> rate Dislike senderId
            :<|> remove senderId
            :<|> getRatings senderId
            :<|> bulkRatings senderId
@@ -75,13 +75,13 @@ stick v uid ct cid = runDb $ do
         (Just e@(Entity k r)) -> update k [RatingSticky =. v]
 --}
 
-rate :: (MonadIO m, MonadReader Config m) => Maybe RatingValue -> Id -> ContentType -> ContentId -> m ()
+rate :: (MonadIO m, MonadReader Config m) => RatingValue -> Id -> ContentType -> ContentId -> m ()
 --rate v Nothing _ _ = errNoSenderId
 rate v uid ct cid = runDb $ do
     rating <- getRating uid cid ct
     case rating of
         -- create rating
-        Nothing -> if isJust v then (insert $ Rating cid ct uid v) >> return () else return ()
+        Nothing -> (insert $ Rating cid ct uid v) >> return ()
         -- update rating
         (Just e@(Entity k r)) -> update k [RatingValue =. v]
 
@@ -97,13 +97,11 @@ getRatings :: (MonadIO m, MonadReader Config m) => Id -> ContentType -> ContentI
 --getRatings Nothing _ _ = errNoSenderId
 getRatings uid ct cid = runDb $ do
     let filters = ratingFilters cid ct
-    likes       <- count        ((RatingValue ==. Just Like)    : filters) 
-    dislikes    <- count        ((RatingValue ==. Just Dislike) : filters) 
+    likes       <- count        ((RatingValue ==. Like)    : filters) 
+    dislikes    <- count        ((RatingValue ==. Dislike) : filters) 
     usersRating <- selectFirst  ((RatingUserId ==. uid)    : filters) []
-    sticky      <- selectFirst [StickyContentType ==. ct, StickyContentId ==. cid] []
-    let sval = isJust sticky
-        rval   = fmap show $ value usersRating
-    return $ Ratings likes dislikes sval (ContentKey cid ct) uid rval
+    let rval   = fmap show $ value usersRating
+    return $ Ratings likes dislikes (ContentKey cid ct) uid rval
 
 bulkRatings :: (MonadIO m, MonadReader Config m) => Id -> [ContentKey] -> m [Ratings]
 bulkRatings uid cks = mapM (\(ContentKey cid ct) -> getRatings uid ct cid) cks

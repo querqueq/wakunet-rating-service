@@ -35,7 +35,7 @@ Rating json
     contentId ContentId
     contentType ContentType
     userId Id
-    value RatingValue Maybe
+    value RatingValue
     UniqueRating contentId contentType userId
     deriving Show
 Sticky
