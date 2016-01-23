@@ -42,5 +42,6 @@ executable wakunet-rating-service
     , bytestring
     , heroku
     , filepath
+    , waku-lib
   hs-source-dirs:      src
   default-language:    Haskell2010

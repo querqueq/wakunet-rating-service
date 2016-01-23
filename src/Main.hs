@@ -5,8 +5,8 @@ import System.Environment          (lookupEnv)
 import Database.Persist.Sqlite     (runSqlPool)
 
 import Config (defaultConfig, Config(..), Environment(..), setLogger, makePool)
-import API    (app)
-import Models (doMigrations)
+import Waku.Rating.Server   (app)
+import Waku.Rating.Database (doMigrations)
 
 main :: IO ()
 main = do

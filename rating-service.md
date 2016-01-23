@@ -23,7 +23,7 @@
 - Response body as below.
 
 ```javascript
-[{"dislikes":1,"userId":2,"likes":2,"userRating":"Dislike","contentKey":{"contentId":13,"contentType":"post"}},{"dislikes":0,"userId":2,"likes":0,"userRating":null,"contentKey":{"contentId":3,"contentType":"event"}},{"dislikes":0,"userId":2,"likes":0,"userRating":null,"contentKey":{"contentId":5,"contentType":"post"}}]
+[{"stickied":false,"dislikes":1,"userId":2,"likes":2,"userRating":"Dislike","contentKey":{"contentId":13,"contentType":"post"}},{"stickied":false,"dislikes":0,"userId":2,"likes":0,"userRating":null,"contentKey":{"contentId":3,"contentType":"event"}},{"stickied":false,"dislikes":0,"userId":2,"likes":0,"userRating":null,"contentKey":{"contentId":5,"contentType":"post"}}]
 ```
 
 ## DELETE /ratings/:contentType/:contentId
@@ -69,7 +69,7 @@
 - Response body as below.
 
 ```javascript
-{"dislikes":1,"userId":2,"likes":2,"userRating":"Dislike","contentKey":{"contentId":13,"contentType":"post"}}
+{"stickied":false,"dislikes":1,"userId":2,"likes":2,"userRating":"Dislike","contentKey":{"contentId":13,"contentType":"post"}}
 ```
 
 ## POST /ratings/:contentType/:contentId/dislike
