@@ -100,7 +100,7 @@ getRatings uid ct cid = runDb $ do
     likes       <- count        ((RatingValue ==. Like)    : filters) 
     dislikes    <- count        ((RatingValue ==. Dislike) : filters) 
     usersRating <- selectFirst  ((RatingUserId ==. uid)    : filters) []
-    let rval   = fmap show $ value usersRating
+    let rval   = fmap (show.ratingValue) $ value usersRating
     return $ Ratings likes dislikes (ContentKey cid ct) uid rval
 
 bulkRatings :: (MonadIO m, MonadReader Config m) => Id -> [ContentKey] -> m [Ratings]
